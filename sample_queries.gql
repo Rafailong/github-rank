@@ -1,0 +1,43 @@
+# sample query
+query {
+  organization(login:"ScalaConsultants") {
+    description
+    membersWithRole(first: 3) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+      nodes {
+        login
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+          }
+        }
+      }
+    }
+  }
+}
+
+# query with pagination details
+query { 
+  organization(login:"ScalaConsultants") {
+    description
+    membersWithRole {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+      nodes {
+        login
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+          }
+        }
+      }
+    }
+  }
+}
