@@ -1,13 +1,18 @@
 package me.rafa.githubrank.api
 
+import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.model._
 import me.rafa.githubrank.model.Contributors._
+import org.http4s.HttpRoutes
 import sttp.model._
 import sttp.tapir.Endpoint
 import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
-import zio.ZIO
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import zio._
+import zio.clock.Clock
+import zio.blocking.Blocking
 
 object OrganizationContributorsEndpoint {
 
@@ -35,7 +40,13 @@ object OrganizationContributorsEndpoint {
         "List of contributors of the specified organization sorted by the number of contributions."
       )
 
-  val zerverEndpoint: ZServerEndpoint[Any, Any] = description.zServerLogic { _ =>
-    ZIO.succeed(outputExample)
+  def route(githubRank: GitHubRank.Service): HttpRoutes[RIO[Has[Clock.Service] with Has[Blocking.Service], *]] = {
+    ZHttp4sServerInterpreter().from {
+      description.zServerLogic { org =>
+        githubRank
+          .organizationContributors(org)
+          .mapError(_ => StatusCode(500))
+      }
+    }.toRoutes
   }
 }
