@@ -71,7 +71,6 @@ lazy val core = (project in file("core"))
   .dependsOn(`github-graph` % "compile->compile")
 
 lazy val cli = (project in file("cli"))
-  .enablePlugins(CalibanPlugin)
   .settings(
     commonSetting,
     name := "cli",
@@ -83,13 +82,23 @@ lazy val cli = (project in file("cli"))
   )
   .dependsOn(core % "compile->compile;test->test")
 
+addCommandAlias("assemblyApi", ";api/assembly")
 lazy val api = (project in file("api"))
-  .enablePlugins(CalibanPlugin)
   .settings(
     commonSetting,
     name := "api",
+    Compile / mainClass := Some("me.rafa.githubrank.api.Main"),
+    Compile / run / mainClass := Some("me.rafa.githubrank.api.Main"),
     libraryDependencies ++= zioBaseBundle ++ tapirBundle,
     addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
+    assembly / mainClass := Some("me.rafa.githubrank.api.Main"),
+    assembly / assemblyJarName := "github_rank_api.jar",
+    assembly / assemblyMergeStrategy := {
+      case x if x.contains("io.netty.versions.properties") => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    }
   )
   .dependsOn(core % "compile->compile;test->test")

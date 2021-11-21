@@ -2,6 +2,8 @@
 
 ## Projects/Modules
 
+**tl;dr:** go to `api` module for instructions on how to build and run. 
+
 ### github-graph
 
 [GitHub Graphql](https://docs.github.com/en/graphql) client based on [Caliban](https://ghostdogpr.github.io/caliban/docs/client.html#graphql-client).
@@ -32,6 +34,25 @@ This project hosts mechanism to query GtiHub graph.
 This project depends on `github-graph` project.
 
 ### api
+
+This project holds a runnable http service.
+You can review Redoc API docs [http://localhost:8080/docs](http://localhost:8080/docs)
+
+#### Build and run
+
+In order to run/consume the api we first need to build it:
+
+```shell
+sbt assemblyApi
+```
+
+Then we can run the über jar as follows:
+
+```shell
+java -DGH_TOKEN="your_super_github_auth_token" -jar api/target/scala-2.13/github_rank_api.jar
+```
+
+Server will be exposed in port `8080` i.e. [http://localhost:8080/docs](http://localhost:8080/docs)
 
 ### cli
 
