@@ -31,6 +31,8 @@ This project hosts mechanism to query GtiHub graph.
 
 This project depends on `github-graph` project.
 
+### api
+
 ### cli
 
-### api
+This project is used to experiment with queries in a "real world" fashion.
