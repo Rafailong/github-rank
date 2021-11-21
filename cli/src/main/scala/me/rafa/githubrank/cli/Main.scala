@@ -3,8 +3,8 @@ package me.rafa.githubrank.cli
 import com.typesafe.config.{Config, ConfigFactory}
 import io.circe.syntax._
 import me.rafa.githubrank._
-import me.rafa.githubrank.gitHubRank.GitHubRank
-import me.rafa.githubrank.gitHubRank.GitHubRank._
+import me.rafa.githubrank.gitHubClient.GitHubClient
+import me.rafa.githubrank.gitHubClient.GitHubClient._
 import me.rafa.githubrank.model._
 import me.rafa.githubrank.logging.annotations._
 import sttp.client3.FollowRedirectsBackend
@@ -18,7 +18,7 @@ object Main extends App {
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
 
-    val config: TaskLayer[Has[Config]] = ZLayer.fromEffect(ZIO.effect(ConfigFactory.load()))
+    val config: TaskLayer[Has[Config]] = ZIO.effect(ConfigFactory.load()).toLayer
 
     val sttpBackend: TaskLayer[Has[ZioSttpBackend]] = ZLayer.fromManaged(
       AsyncHttpClientZioBackend
@@ -34,7 +34,7 @@ object Main extends App {
 
     val org = "ScalaConsultants"
 
-    val program: ZIO[Console with GitHubRank, GitHunRankError, Unit] = {
+    val program: ZIO[Console with GitHubClient, GitHunRankError, Unit] = {
       organizationContributors(org)
         .flatMap { contributors =>
           ZIO.foreachPar_[Console, GitHunRankError, Contributor](contributors.elem) { c =>
@@ -48,7 +48,7 @@ object Main extends App {
       .inject(
         Console.live,
         Slf4jLogger.makeWithAnnotationsAsMdc(List(organization)),
-        GitHubRank.live,
+        GitHubClient.live,
         config,
         sttpBackend
       )

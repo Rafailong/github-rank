@@ -2,7 +2,7 @@ package me.rafa.githubrank.api
 
 import com.typesafe.config.{Config, ConfigFactory}
 import me.rafa.githubrank.ZioSttpBackend
-import me.rafa.githubrank.gitHubRank.GitHubRank
+import me.rafa.githubrank.gitHubClient.GitHubClient
 import me.rafa.githubrank.logging.annotations.organization
 import org.http4s.server.Router
 import org.http4s.blaze.server.BlazeServerBuilder
@@ -19,7 +19,7 @@ import zio.magic._
 object Main extends App {
 
   val logging: ULayer[Logging]       = Slf4jLogger.makeWithAnnotationsAsMdc(List(organization))
-  val config: TaskLayer[Has[Config]] = ZLayer.fromEffect(ZIO.effect(ConfigFactory.load()))
+  val config: TaskLayer[Has[Config]] = ZIO.effect(ConfigFactory.load()).toLayer
 
   val sttpBackend: TaskLayer[Has[ZioSttpBackend]] = ZLayer.fromManaged(
     AsyncHttpClientZioBackend
@@ -34,8 +34,8 @@ object Main extends App {
   )
 
   // Starting the server
-  val serve: ZIO[ZEnv with GitHubRank, Throwable, Unit] = {
-    ZIO.service[GitHubRank.Service].flatMap { githubRank =>
+  val serve: ZIO[ZEnv with GitHubClient, Throwable, Unit] = {
+    ZIO.service[GitHubClient.Service].flatMap { githubRank =>
       import cats.syntax.all._
 
       val routes = RedocRoute() <+> OrganizationContributorsEndpoint.route(githubRank)
@@ -59,7 +59,7 @@ object Main extends App {
         logging,
         config,
         sttpBackend,
-        GitHubRank.live
+        GitHubClient.live
       )
       .exitCode
   }
