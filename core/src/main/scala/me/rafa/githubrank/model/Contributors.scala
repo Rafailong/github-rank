@@ -1,6 +1,6 @@
 package me.rafa.githubrank.model
 
-import io.circe.Codec
+import io.circe._
 import io.circe.generic.semiauto._
 
 object Contributors {
@@ -10,6 +10,6 @@ object Contributors {
 
   val empty: Contributors = Page[Contributor](Paging.empty, total = 0, elem = List.empty)
 
-  implicit val contributorsCodec: Codec.AsObject[Contributors] =
-    deriveCodec[Contributors]
+  implicit val contributorsEncoder: Encoder[Contributors] = deriveEncoder[Contributors]
+  implicit val contributorsDecoder: Decoder[Contributors] = deriveDecoder[Contributors]
 }
