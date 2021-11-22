@@ -1,9 +1,12 @@
 package me.rafa.githubrank.api
 
+import eu.timepit.refined.types.numeric.NonNegInt
+import eu.timepit.refined.types.string.NonEmptyString
 import me.rafa.githubrank.githubrank.GitHubRank
 import me.rafa.githubrank.model._
 import org.http4s.HttpRoutes
 import sttp.model._
+import sttp.tapir.codec.refined._
 import sttp.tapir.Endpoint
 import sttp.tapir.ztapir._
 import sttp.tapir.json.circe._
@@ -16,15 +19,25 @@ import zio.blocking.Blocking
 object OrganizationContributorsEndpoint {
 
   private val outputExample = Set(
-    Contributor(name = "piotr", contributions  = 100),
-    Contributor(name = "jarek", contributions  = 10),
-    Contributor(name = "lukasz", contributions = 1)
+    Contributor(
+      name          = NonEmptyString.unsafeFrom("piotr"),
+      contributions = NonNegInt.unsafeFrom(100)
+    ),
+    Contributor(
+      name          = NonEmptyString.unsafeFrom("jarek"),
+      contributions = NonNegInt.unsafeFrom(10)
+    ),
+    Contributor(name = NonEmptyString.unsafeFrom("lukasz"), contributions = NonNegInt.unsafeFrom(1))
   )
 
-  val description: Endpoint[Unit, String, StatusCode, Set[Contributor], Any] =
+  val description: Endpoint[Unit, NonEmptyString, StatusCode, Set[Contributor], Any] =
     endpoint.get
       .name("Organization' Contributors")
-      .in("org" / path[String]("org_name").example("ScalaConsultants") / "contributors")
+      .in(
+        "org" / path[NonEmptyString]("org_name").example(
+          NonEmptyString.unsafeFrom("ScalaConsultants")
+        ) / "contributors"
+      )
       .out(
         jsonBody[Set[Contributor]]
           .description("List of contributors.")
@@ -41,7 +54,7 @@ object OrganizationContributorsEndpoint {
     ZHttp4sServerInterpreter().from {
       description.zServerLogic { org =>
         githubRank
-          .orgContributors(org)
+          .orgContributors(org.value)
           .orElseFail(StatusCode(500))
           .uninterruptible
       }
