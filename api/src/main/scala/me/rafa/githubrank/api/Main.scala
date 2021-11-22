@@ -2,9 +2,9 @@ package me.rafa.githubrank.api
 
 import com.typesafe.config.{Config, ConfigFactory}
 import me.rafa.githubrank.ZioSttpBackend
-import me.rafa.githubrank.caching.ZCaching
-import me.rafa.githubrank.gitHubClient.GitHubClient
-import me.rafa.githubrank.gitHubRank.GitHubRank
+import me.rafa.githubrank.caching.ZCacheCaffeine
+import me.rafa.githubrank.githubclient.GitHubGraphClient
+import me.rafa.githubrank.githubrank.{GitHubRank, GitHubRankLive}
 import me.rafa.githubrank.logging.annotations.organization
 import org.http4s.server.Router
 import org.http4s.blaze.server.BlazeServerBuilder
@@ -36,8 +36,8 @@ object Main extends App {
   )
 
   // Starting the server
-  val serve: ZIO[ZEnv with GitHubRank, Throwable, Unit] = {
-    ZIO.service[GitHubRank.Service].flatMap { githubRank =>
+  val serve: ZIO[ZEnv with Has[GitHubRank], Throwable, Unit] = {
+    ZIO.service[GitHubRank].flatMap { githubRank =>
       import cats.syntax.all._
 
       val routes = RedocRoute() <+> OrganizationContributorsEndpoint.route(githubRank)
@@ -62,9 +62,9 @@ object Main extends App {
         logging,
         config,
         sttpBackend,
-        ZCaching.live,
-        GitHubClient.live,
-        GitHubRank.live
+        ZCacheCaffeine.live,
+        GitHubGraphClient.live,
+        GitHubRankLive.live
       )
       .exitCode
   }

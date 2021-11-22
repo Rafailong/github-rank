@@ -1,6 +1,6 @@
 package me.rafa.githubrank.api
 
-import me.rafa.githubrank.gitHubRank.GitHubRank
+import me.rafa.githubrank.githubrank.GitHubRank
 import me.rafa.githubrank.model._
 import org.http4s.HttpRoutes
 import sttp.model._
@@ -35,7 +35,9 @@ object OrganizationContributorsEndpoint {
         "List of contributors of the specified organization sorted by the number of contributions."
       )
 
-  def route(githubRank: GitHubRank.Service): HttpRoutes[RIO[Has[Clock.Service] with Has[Blocking.Service], *]] = {
+  def route(
+    githubRank: GitHubRank
+  ): HttpRoutes[RIO[Has[Clock.Service] with Has[Blocking.Service], *]] = {
     ZHttp4sServerInterpreter().from {
       description.zServerLogic { org =>
         githubRank

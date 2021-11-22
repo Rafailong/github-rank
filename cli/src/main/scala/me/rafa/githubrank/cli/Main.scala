@@ -3,9 +3,9 @@ package me.rafa.githubrank.cli
 import com.typesafe.config.{Config, ConfigFactory}
 import io.circe.syntax._
 import me.rafa.githubrank._
-import me.rafa.githubrank.caching.ZCaching
-import me.rafa.githubrank.gitHubClient.GitHubClient
-import me.rafa.githubrank.gitHubRank.GitHubRank
+import me.rafa.githubrank.caching.ZCacheCaffeine
+import me.rafa.githubrank.githubclient.GitHubGraphClient
+import me.rafa.githubrank.githubrank.{GitHubRank, GitHubRankLive}
 import me.rafa.githubrank.model._
 import me.rafa.githubrank.logging.annotations._
 import sttp.client3.FollowRedirectsBackend
@@ -35,7 +35,7 @@ object Main extends App {
 
     val org = "tensorflow"
 
-    val program: ZIO[Console with GitHubRank, GitHunRankError, Unit] = {
+    val program: ZIO[Console with Has[GitHubRank], GitHunRankError, Unit] = {
       GitHubRank.orgContributors(org).flatMap { contributors =>
         ZIO.foreach_[Console, GitHunRankError, Contributor](contributors) { c =>
           putStrLn(c.asJson.noSpaces)
@@ -48,9 +48,9 @@ object Main extends App {
       .inject(
         Console.live,
         Slf4jLogger.makeWithAnnotationsAsMdc(List(organization)),
-        ZCaching.live,
-        GitHubClient.live,
-        GitHubRank.live,
+        ZCacheCaffeine.live,
+        GitHubGraphClient.live,
+        GitHubRankLive.live,
         config,
         sttpBackend
       )

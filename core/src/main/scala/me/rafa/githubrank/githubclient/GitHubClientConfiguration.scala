@@ -1,4 +1,4 @@
-package me.rafa.githubrank.config
+package me.rafa.githubrank.githubclient
 
 import com.typesafe.config.Config
 import pureconfig.{ConfigReader, ConfigSource}
