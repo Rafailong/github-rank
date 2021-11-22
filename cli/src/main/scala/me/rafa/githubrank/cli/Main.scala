@@ -4,7 +4,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import io.circe.syntax._
 import me.rafa.githubrank._
 import me.rafa.githubrank.gitHubClient.GitHubClient
-import me.rafa.githubrank.gitHubClient.GitHubClient._
+import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.model._
 import me.rafa.githubrank.logging.annotations._
 import sttp.client3.FollowRedirectsBackend
@@ -32,16 +32,15 @@ object Main extends App {
         )
     )
 
-    val org = "ScalaConsultants"
+    val org = "tensorflow"
 
-    val program: ZIO[Console with GitHubClient, GitHunRankError, Unit] = {
-      organizationContributors(org)
-        .flatMap { contributors =>
-          ZIO.foreachPar_[Console, GitHunRankError, Contributor](contributors.elem) { c =>
-            putStrLn(c.asJson.noSpaces)
-              .mapError(GitHunRankError.UnexpectedError(_))
-          }
+    val program: ZIO[Console with GitHubRank, GitHunRankError, Unit] = {
+      GitHubRank.orgContributors(org).flatMap { contributors =>
+        ZIO.foreach_[Console, GitHunRankError, Contributor](contributors) { c =>
+          putStrLn(c.asJson.noSpaces)
+            .mapError(GitHunRankError.UnexpectedError(_))
         }
+      }
     }
 
     program
@@ -49,6 +48,7 @@ object Main extends App {
         Console.live,
         Slf4jLogger.makeWithAnnotationsAsMdc(List(organization)),
         GitHubClient.live,
+        GitHubRank.live,
         config,
         sttpBackend
       )
