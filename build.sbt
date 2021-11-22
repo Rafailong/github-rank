@@ -15,7 +15,9 @@ val RefinedVersion          = "0.9.27"
 lazy val commonSetting = Seq(
   organization := "me.rafa",
   version := "0.0.1-SNAPSHOT",
-  scalaVersion := "2.13.6"
+  scalaVersion := "2.13.6",
+  scalacOptions += "-Ymacro-annotations",
+  testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
 )
 
 lazy val zioBaseBundle = Seq(
@@ -50,7 +52,8 @@ lazy val tapirBundle = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-redoc" % TapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-redoc-bundle" % TapirVersion,
-  "com.softwaremill.sttp.tapir" %% "tapir-refined" % TapirVersion
+  "com.softwaremill.sttp.tapir" %% "tapir-refined" % TapirVersion,
+  "com.softwaremill.sttp.tapir" %% "sttp-mock-server" % TapirVersion % Test
 )
 
 lazy val ScalaCacheBundle = Seq(
