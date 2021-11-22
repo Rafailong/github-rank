@@ -35,11 +35,11 @@ object Main extends App {
 
     val org = "tensorflow"
 
-    val program: ZIO[Console with Has[GitHubRank], GitHunRankError, Unit] = {
+    val program: ZIO[Console with Has[GitHubRank], Error, Unit] = {
       GitHubRank.orgContributors(org).flatMap { contributors =>
-        ZIO.foreach_[Console, GitHunRankError, Contributor](contributors) { c =>
+        ZIO.foreach_[Console, Error, Contributor](contributors) { c =>
           putStrLn(c.asJson.noSpaces)
-            .mapError(GitHunRankError.UnexpectedError(_))
+            .mapError(Error.UnexpectedError(_))
         }
       }
     }

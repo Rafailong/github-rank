@@ -1,7 +1,7 @@
 package me.rafa.githubrank.githubclient
 
 import com.typesafe.config.Config
-import me.rafa.githubrank.{GitHunRankError, ZioSttpBackend}
+import me.rafa.githubrank.{Error, ZioSttpBackend}
 import me.rafa.githubrank.logging.annotations._
 import me.rafa.githubrank.model.{Contributors, PagingControls}
 import me.rafa.githubrank.githubclient.graphqueries.organizationQueries
@@ -19,7 +19,7 @@ case class GitHubGraphClient(
     org: String,
     pagingDirection: Option[PagingControls.PagingDirection],
     take: Int
-  ): IO[GitHunRankError, Contributors] = {
+  ): IO[Error, Contributors] = {
 
     val request = organizationQueries
       .contributors(org, pagingDirection, take)
@@ -33,14 +33,14 @@ case class GitHubGraphClient(
       response <- request
         .send(sttpBackend)
         .mapError(
-          GitHunRankError
+          Error
             .FatalServerCommunicationError(gitHubClientConfiguration.gitHubGraphqlUri, _)
         )
       result <- response.body match {
         case Right(contributors) => ZIO.succeed(contributors)
         case Left(calibanClientError) =>
           ZIO.fail(
-            GitHunRankError.FatalServerCommunicationError(
+            Error.FatalServerCommunicationError(
               gitHubClientConfiguration.gitHubGraphqlUri,
               calibanClientError
             )

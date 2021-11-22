@@ -2,8 +2,8 @@ package me.rafa.githubrank.caching
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.typesafe.config.Config
-import me.rafa.githubrank.GitHunRankError
-import me.rafa.githubrank.GitHunRankError.UnexpectedError
+import me.rafa.githubrank.Error
+import me.rafa.githubrank.Error.UnexpectedError
 import me.rafa.githubrank.model.Contributor
 import pureconfig.error.ConfigReaderException
 import scalacache.{Cache, Entry, Flags}
@@ -16,14 +16,14 @@ case class ZCacheCaffeine(cache: Cache[Set[Contributor]], config: ZCacheConfig) 
 
   override def putWithExpiration(key: String)(contributors: Set[Contributor])(implicit
     flags: Flags
-  ): IO[GitHunRankError, Unit] =
+  ): IO[Error, Unit] =
     IO.fromTry(cache.put(key)(contributors, ttl = Some(config.ttl)))
       .mapError(UnexpectedError)
       .unit
 
   override def get(key: String)(implicit
     flags: Flags
-  ): IO[GitHunRankError, Option[Set[Contributor]]] = {
+  ): IO[Error, Option[Set[Contributor]]] = {
     val cached = cache.get(key)
     IO.fromTry(cached).mapError(UnexpectedError)
   }

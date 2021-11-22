@@ -1,6 +1,6 @@
 package me.rafa.githubrank.githubrank
 
-import me.rafa.githubrank.GitHunRankError
+import me.rafa.githubrank.Error
 import me.rafa.githubrank.caching._
 import me.rafa.githubrank.githubclient.GitHubClient
 import me.rafa.githubrank.logging.annotations._
@@ -20,7 +20,7 @@ case class GitHubRankLive(
   private def fetchMembers(
     org: String,
     pagingDirection: Option[PagingDirection]
-  ): IO[GitHunRankError, Set[Contributor]] = {
+  ): IO[Error, Set[Contributor]] = {
     for {
       page <- gitHubClient.organizationContributors(org, pagingDirection)
       results <- {
@@ -38,7 +38,7 @@ case class GitHubRankLive(
     } yield results
   }
 
-  override def orgContributors(org: String): IO[GitHunRankError, Set[Contributor]] = {
+  override def orgContributors(org: String): IO[Error, Set[Contributor]] = {
     for {
       fromCache <- zCache.get(org)
       result <- fromCache match {
