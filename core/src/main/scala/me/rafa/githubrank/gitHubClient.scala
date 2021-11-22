@@ -31,7 +31,7 @@ object gitHubClient {
         config      <- ZIO.service[Config]
         logger      <- ZIO.service[Logger[String]]
         gitHubRankConfig <- ZIO
-          .fromEither(GitHubRankConfiguration.loadConfig("github-rank.github", config))
+          .fromEither(GitHubClientConfiguration.loadConfig("github-rank.github", config))
           .mapError(ConfigReaderException(_))
           .orDie
       } yield new Service {

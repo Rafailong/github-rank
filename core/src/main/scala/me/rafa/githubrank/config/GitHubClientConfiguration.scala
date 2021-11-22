@@ -6,16 +6,16 @@ import pureconfig.generic.semiauto._
 import pureconfig.module.sttp._
 import sttp.model.Uri
 
-case class GitHubRankConfiguration(
+case class GitHubClientConfiguration(
   gitHubGraphqlUri: Uri,
   gitHubAuthToken: String
 )
 
-object GitHubRankConfiguration {
+object GitHubClientConfiguration {
 
-  implicit val gitHubRankConfigurationConfigReader: ConfigReader[GitHubRankConfiguration] =
-    deriveReader[GitHubRankConfiguration]
+  implicit val gitHubRankConfigurationConfigReader: ConfigReader[GitHubClientConfiguration] =
+    deriveReader[GitHubClientConfiguration]
 
   def loadConfig(path: String, config: Config) =
-    ConfigSource.fromConfig(config).at(path).load[GitHubRankConfiguration]
+    ConfigSource.fromConfig(config).at(path).load[GitHubClientConfiguration]
 }
