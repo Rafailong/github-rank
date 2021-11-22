@@ -4,6 +4,7 @@ import caliban.client.Operations.RootQuery
 import caliban.client.SelectionBuilder
 import com.github.graph._
 import me.rafa.githubrank.model._
+import me.rafa.githubrank.model.PagingControls._
 
 object Queries {
 
@@ -14,17 +15,20 @@ object Queries {
     */
   def contributorsOf(
     org: String,
-    take: Int              = 100,
-    paging: Option[Paging] = None
+    pagingDirection: Option[PagingDirection],
+    take: Int = 50
   ): SelectionBuilder[RootQuery, Contributors] = {
 
-    val first  = if (paging.isEmpty) Some(take) else None
-    val before = paging.flatMap(_.end)
-    val after  = paging.flatMap(_.start)
+    val (before, after) = pagingDirection
+      .map {
+        case PagingDirection.Before(token) => Some(token) -> None
+        case PagingDirection.After(token)  => None        -> Some(token)
+      }
+      .getOrElse(None -> None)
 
     Query
       .organization(login = org) {
-        Organization.membersWithRole(first = first, after = after, before = before) {
+        Organization.membersWithRole(first = Some(take), after = after, before = before) {
           OrganizationMemberConnection.pageInfo(Paging.Selector) ~
           OrganizationMemberConnection.totalCount ~
           OrganizationMemberConnection

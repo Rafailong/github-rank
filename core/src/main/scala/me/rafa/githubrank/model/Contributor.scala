@@ -10,6 +10,9 @@ object Contributor {
 
   implicit val contributorCodec: Codec.AsObject[Contributor] = deriveCodec[Contributor]
 
+  implicit val contributorOrdering: Ordering[Contributor] =
+    Ordering.by[Contributor, Int](_.contributions).reverse
+
   val Selector = {
     User.login ~
     User.contributionsCollection() {

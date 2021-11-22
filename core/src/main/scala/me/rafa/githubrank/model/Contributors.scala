@@ -2,6 +2,7 @@ package me.rafa.githubrank.model
 
 import io.circe._
 import io.circe.generic.semiauto._
+import me.rafa.githubrank.model.PagingControls.Paging
 
 object Contributors {
 
