@@ -1,19 +1,19 @@
-package me.rafa.githubrank
+package me.rafa.githubrank.githubclient.graphqueries
 
 import caliban.client.Operations.RootQuery
 import caliban.client.SelectionBuilder
-import com.github.graph._
-import me.rafa.githubrank.model._
-import me.rafa.githubrank.model.PagingControls._
+import com.github.graph.{Organization, OrganizationMemberConnection, Query}
+import me.rafa.githubrank.model.PagingControls.{Paging, PagingDirection}
+import me.rafa.githubrank.model.{Contributor, Contributors}
 
-object Queries {
+trait OrganizationQueries {
 
   /** @param org Organization login `"ScalaConsultants"`
     * @param take Number of element to take. Default `100`
     * @param paging Optional paging controls. Check '''model.Paging''' for more information.
     * @return
     */
-  def contributorsOf(
+  def contributors(
     org: String,
     pagingDirection: Option[PagingDirection],
     take: Int = 50

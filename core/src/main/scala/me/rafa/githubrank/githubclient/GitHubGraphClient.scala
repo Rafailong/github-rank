@@ -1,9 +1,10 @@
 package me.rafa.githubrank.githubclient
 
 import com.typesafe.config.Config
-import me.rafa.githubrank.{GitHunRankError, Queries, ZioSttpBackend}
+import me.rafa.githubrank.{GitHunRankError, ZioSttpBackend}
 import me.rafa.githubrank.logging.annotations._
 import me.rafa.githubrank.model.{Contributors, PagingControls}
+import me.rafa.githubrank.githubclient.graphqueries.organizationQueries
 import pureconfig.error.ConfigReaderException
 import zio._
 import zio.logging.Logger
@@ -20,8 +21,8 @@ case class GitHubGraphClient(
     take: Int
   ): IO[GitHunRankError, Contributors] = {
 
-    val request = Queries
-      .contributorsOf(org, pagingDirection, take)
+    val request = organizationQueries
+      .contributors(org, pagingDirection, take)
       .toRequest(gitHubClientConfiguration.gitHubGraphqlUri)
       .header("Authorization", s"bearer ${gitHubClientConfiguration.gitHubAuthToken}")
 
