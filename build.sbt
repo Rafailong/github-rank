@@ -89,7 +89,9 @@ lazy val api = (project in file("api"))
     name := "api",
     Compile / mainClass := Some("me.rafa.githubrank.api.Main"),
     Compile / run / mainClass := Some("me.rafa.githubrank.api.Main"),
-    libraryDependencies ++= zioBaseBundle ++ tapirBundle,
+    libraryDependencies ++= zioBaseBundle ++ tapirBundle ++ Seq(
+      "ch.qos.logback" % "logback-classic" % "1.2.7"
+    ),
     addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     assembly / mainClass := Some("me.rafa.githubrank.api.Main"),
