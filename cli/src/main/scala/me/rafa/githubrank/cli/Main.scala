@@ -3,6 +3,7 @@ package me.rafa.githubrank.cli
 import com.typesafe.config.{Config, ConfigFactory}
 import io.circe.syntax._
 import me.rafa.githubrank._
+import me.rafa.githubrank.caching.ZCaching
 import me.rafa.githubrank.gitHubClient.GitHubClient
 import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.model._
@@ -47,6 +48,7 @@ object Main extends App {
       .inject(
         Console.live,
         Slf4jLogger.makeWithAnnotationsAsMdc(List(organization)),
+        ZCaching.live,
         GitHubClient.live,
         GitHubRank.live,
         config,

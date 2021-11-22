@@ -63,7 +63,9 @@ lazy val core = (project in file("core"))
     commonSetting,
     name := "core",
     libraryDependencies ++= zioBaseBundle ++ sttpBundle ++ pureconfigBundle ++ Seq(
-      "io.circe" %% "circe-generic" % CirceVersion
+      "io.circe" %% "circe-generic" % CirceVersion,
+      "com.github.cb372" %% "scalacache-core" % "0.28.0",
+      "com.github.cb372" %% "scalacache-caffeine" % "0.28.0"
     ),
     addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")

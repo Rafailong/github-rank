@@ -41,6 +41,7 @@ object OrganizationContributorsEndpoint {
         githubRank
           .orgContributors(org)
           .orElseFail(StatusCode(500))
+          .uninterruptible
       }
     }.toRoutes
   }

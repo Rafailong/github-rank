@@ -2,6 +2,7 @@ package me.rafa.githubrank.api
 
 import com.typesafe.config.{Config, ConfigFactory}
 import me.rafa.githubrank.ZioSttpBackend
+import me.rafa.githubrank.caching.ZCaching
 import me.rafa.githubrank.gitHubClient.GitHubClient
 import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.logging.annotations.organization
@@ -61,6 +62,7 @@ object Main extends App {
         logging,
         config,
         sttpBackend,
+        ZCaching.live,
         GitHubClient.live,
         GitHubRank.live
       )

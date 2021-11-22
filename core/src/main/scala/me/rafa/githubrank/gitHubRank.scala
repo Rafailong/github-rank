@@ -1,5 +1,6 @@
 package me.rafa.githubrank
 
+import me.rafa.githubrank.caching.ZCaching
 import me.rafa.githubrank.gitHubClient.GitHubClient
 import me.rafa.githubrank.logging.annotations.organization
 import me.rafa.githubrank.model.Contributor
@@ -20,10 +21,11 @@ object gitHubRank {
       def orgContributors(org: String): IO[GitHunRankError, Set[Contributor]]
     }
 
-    val live: RLayer[GitHubClient with Logging, GitHubRank] = {
+    val live: RLayer[ZCaching with GitHubClient with Logging, GitHubRank] = {
       for {
         logger       <- ZIO.service[Logger[String]]
         githubClient <- ZIO.service[GitHubClient.Service]
+        zCache       <- ZIO.service[ZCaching.Service]
       } yield new Service {
 
         def fetchMembers(
@@ -49,8 +51,21 @@ object gitHubRank {
         }
 
         override def orgContributors(org: String): IO[GitHunRankError, Set[Contributor]] = {
-          logger.info(s"Fetching contributors of organization: '$org'") >>>
-          fetchMembers(org, None)
+
+          for {
+            fromCache <- zCache.get(org)
+            result <- fromCache match {
+              case Some(cached) =>
+                logger.info(s"Result loaded from cache: '$org'") >>>
+                  IO.succeed(cached)
+              case None =>
+                for {
+                  _            <- logger.info(s"Fetching contributors of organization: '$org'")
+                  contributors <- fetchMembers(org, None)
+                  _            <- zCache.putWithExpiration(org)(contributors)
+                } yield contributors
+            }
+          } yield result
         }
       }
     }.toLayer
