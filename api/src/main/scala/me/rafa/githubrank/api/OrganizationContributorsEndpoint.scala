@@ -1,8 +1,7 @@
 package me.rafa.githubrank.api
 
-import me.rafa.githubrank.gitHubClient.GitHubClient
+import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.model._
-import me.rafa.githubrank.model.Contributors._
 import org.http4s.HttpRoutes
 import sttp.model._
 import sttp.tapir.Endpoint
@@ -16,22 +15,18 @@ import zio.blocking.Blocking
 
 object OrganizationContributorsEndpoint {
 
-  private val outputExample = Contributors(
-    Paging(hasNext = true, Some("f36g27h8s"), None),
-    total = 10,
-    contributors = List(
-      Contributor(name = "piotr", contributions  = 100),
-      Contributor(name = "jarek", contributions  = 10),
-      Contributor(name = "lukasz", contributions = 1)
-    )
+  private val outputExample = Set(
+    Contributor(name = "piotr", contributions  = 100),
+    Contributor(name = "jarek", contributions  = 10),
+    Contributor(name = "lukasz", contributions = 1)
   )
 
-  val description: Endpoint[Unit, String, StatusCode, Contributors, Any] =
+  val description: Endpoint[Unit, String, StatusCode, Set[Contributor], Any] =
     endpoint.get
       .name("Organization' Contributors")
       .in("org" / path[String]("org_name").example("ScalaConsultants") / "contributors")
       .out(
-        jsonBody[Contributors]
+        jsonBody[Set[Contributor]]
           .description("List of contributors.")
           .example(outputExample)
       )
@@ -40,12 +35,12 @@ object OrganizationContributorsEndpoint {
         "List of contributors of the specified organization sorted by the number of contributions."
       )
 
-  def route(githubRank: GitHubClient.Service): HttpRoutes[RIO[Has[Clock.Service] with Has[Blocking.Service], *]] = {
+  def route(githubRank: GitHubRank.Service): HttpRoutes[RIO[Has[Clock.Service] with Has[Blocking.Service], *]] = {
     ZHttp4sServerInterpreter().from {
       description.zServerLogic { org =>
         githubRank
-          .organizationContributors(org)
-          .mapError(_ => StatusCode(500))
+          .orgContributors(org)
+          .orElseFail(StatusCode(500))
       }
     }.toRoutes
   }

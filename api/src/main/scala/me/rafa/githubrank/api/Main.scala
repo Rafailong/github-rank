@@ -3,6 +3,7 @@ package me.rafa.githubrank.api
 import com.typesafe.config.{Config, ConfigFactory}
 import me.rafa.githubrank.ZioSttpBackend
 import me.rafa.githubrank.gitHubClient.GitHubClient
+import me.rafa.githubrank.gitHubRank.GitHubRank
 import me.rafa.githubrank.logging.annotations.organization
 import org.http4s.server.Router
 import org.http4s.blaze.server.BlazeServerBuilder
@@ -34,20 +35,21 @@ object Main extends App {
   )
 
   // Starting the server
-  val serve: ZIO[ZEnv with GitHubClient, Throwable, Unit] = {
-    ZIO.service[GitHubClient.Service].flatMap { githubRank =>
+  val serve: ZIO[ZEnv with GitHubRank, Throwable, Unit] = {
+    ZIO.service[GitHubRank.Service].flatMap { githubRank =>
       import cats.syntax.all._
 
       val routes = RedocRoute() <+> OrganizationContributorsEndpoint.route(githubRank)
 
-      ZIO.runtime[ZEnv].flatMap { implicit runtime => // This is needed to derive cats-effect instances for that are needed by http4s
-        BlazeServerBuilder[RIO[Clock with Blocking, *]]
-          .withExecutionContext(runtime.platform.executor.asEC)
-          .bindHttp(port = 8080, host = "localhost")
-          .withHttpApp(Router("/" -> routes).orNotFound)
-          .serve
-          .compile
-          .drain
+      ZIO.runtime[ZEnv].flatMap {
+        implicit runtime => // This is needed to derive cats-effect instances for that are needed by http4s
+          BlazeServerBuilder[RIO[Clock with Blocking, *]]
+            .withExecutionContext(runtime.platform.executor.asEC)
+            .bindHttp(port = 8080, host = "localhost")
+            .withHttpApp(Router("/" -> routes).orNotFound)
+            .serve
+            .compile
+            .drain
       }
     }
   }
@@ -59,7 +61,8 @@ object Main extends App {
         logging,
         config,
         sttpBackend,
-        GitHubClient.live
+        GitHubClient.live,
+        GitHubRank.live
       )
       .exitCode
   }
