@@ -17,7 +17,7 @@ lazy val commonSetting = Seq(
   version := "0.0.1-SNAPSHOT",
   scalaVersion := "2.13.6",
   scalacOptions += "-Ymacro-annotations",
-  testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+  testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
 )
 
 lazy val zioBaseBundle = Seq(
@@ -53,7 +53,8 @@ lazy val tapirBundle = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-redoc" % TapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-redoc-bundle" % TapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-refined" % TapirVersion,
-  "com.softwaremill.sttp.tapir" %% "sttp-mock-server" % TapirVersion % Test
+  "com.softwaremill.sttp.tapir" %% "sttp-mock-server" % TapirVersion % Test,
+  "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % TapirVersion % Test
 )
 
 lazy val ScalaCacheBundle = Seq(
@@ -82,7 +83,6 @@ lazy val `github-graph` = (project in file("github-graph"))
   )
 
 lazy val core = (project in file("core"))
-  .enablePlugins(CalibanPlugin)
   .settings(
     commonSetting,
     name := "core",
@@ -131,5 +131,17 @@ lazy val api = (project in file("api"))
         val oldStrategy = (assembly / assemblyMergeStrategy).value
         oldStrategy(x)
     }
+  )
+  .dependsOn(core % "compile->compile;test->test")
+
+lazy val tests = (project in file("tests"))
+  .settings(
+    commonSetting,
+    name := "tests",
+    libraryDependencies ++= zioBaseBundle ++ tapirBundle ++ CirceBundle ++ RefinedBundle,
+    addCompilerPlugin(
+      "org.typelevel" % "kind-projector" % KindProjectorVersion cross CrossVersion.full
+    ),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % BetterMonadicForVersion),
   )
   .dependsOn(core % "compile->compile;test->test")
