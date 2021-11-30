@@ -2,9 +2,8 @@ package me.rafa.githubrank.githubrank
 
 import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
-import me.rafa.githubrank.caching.ZCache
-import me.rafa.githubrank.githubclient.GitHubClient
 import me.rafa.githubrank.model._
+import me.rafa.githubrank.Mocks._
 import scalacache.Flags
 import zio._
 import zio.clock.Clock
@@ -14,17 +13,10 @@ import zio.magic._
 import zio.random.Random
 import zio.test._
 import zio.test.mock.Expectation._
-import zio.test.mock._
 
 import scala.collection.immutable.SortedSet
 
 object GitHubRankSpec extends DefaultRunnableSpec {
-
-  @mockable[ZCache]
-  object ZCacheMock
-
-  @mockable[GitHubClient]
-  object GitHubClientMock
 
   private val loggingLayer = Logging.console()
 
