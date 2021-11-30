@@ -6,9 +6,10 @@ import zio.console.Console
 import zio.logging.Logging
 import zio.magic._
 import zio.random.Random
-import zio.test.Assertion.isNone
+import zio.test._
+import zio.test.Assertion._
 import zio.test.TestAspect.samples
-import zio.test.{assertM, checkM, DefaultRunnableSpec, Gen}
+import zio.test.{checkM, DefaultRunnableSpec, Gen}
 import zio.{ZIO, ZLayer}
 
 object ZCacheSpec extends DefaultRunnableSpec {
